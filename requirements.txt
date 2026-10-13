@@ -1,0 +1,6 @@
+flask>=3.0.0
+python-telegram-bot>=20.8
+httpx>=0.25.0
+waitress>=3.0.0
+gunicorn>=21.2.0
+cryptography>=42.0.0

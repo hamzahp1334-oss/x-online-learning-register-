@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}FAQ — {{ site.academy_name }}{% endblock %}
+{% block description %}Frequently asked questions about registration, pricing, classes, children's programs and what happens after you register.{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Frequently Asked Questions</h1>
+    <p class="muted">Everything you need to know before registering</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container narrow">
+    {% if faqs %}
+    <div class="faq-list">
+      {% for f in faqs %}
+      <details class="faq-item card" {{ 'open' if loop.first }}>
+        <summary>
+          <span>{{ f.question }}</span>
+          <span class="faq-chevron" aria-hidden="true"></span>
+        </summary>
+        <div class="faq-body">{{ f.answer }}</div>
+      </details>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state card">
+      <h3>Questions and answers coming soon</h3>
+      <p class="muted">In the meantime, feel free to <a href="{{ url_for('public.contact_page') }}">contact the academy</a> with any question.</p>
+    </div>
+    {% endif %}
+    <p class="center muted">Still have a question? <a href="{{ url_for('public.contact_page') }}">Contact the academy</a>.</p>
+  </div>
+</section>
+{% endblock %}

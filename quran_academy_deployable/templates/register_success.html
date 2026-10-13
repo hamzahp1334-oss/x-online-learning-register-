@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Registration Submitted Successfully — {{ site.academy_name }}{% endblock %}
+{% block description %}Your registration has been received. The academy will contact you to confirm availability and schedule.{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container narrow">
+    <div class="card success-card">
+      <div class="success-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg>
+      </div>
+      <h1>Registration Submitted Successfully!</h1>
+      <p class="muted">Your registration has been saved. The academy will contact you to confirm class availability and schedule.</p>
+
+      <div class="success-id">
+        <span class="success-id-label">Your Registration ID</span>
+        <div class="success-id-row">
+          <code id="regId">{{ reg.reg_id }}</code>
+          <button class="btn btn-ghost btn-sm" id="copyRegId" type="button">Copy Registration ID</button>
+        </div>
+      </div>
+
+      <dl class="success-details">
+        <div><dt>Student name</dt><dd>{{ reg.full_name }}</dd></div>
+        <div><dt>Program</dt><dd>{{ reg.program_name_snapshot }}</dd></div>
+        <div>
+          <dt>Monthly price</dt>
+          <dd>{% if reg.monthly_price_snapshot is not none %}{{ reg.monthly_price_snapshot|price(reg.currency_snapshot) }}{% else %}To be confirmed by the academy{% endif %}</dd>
+        </div>
+        <div><dt>Registration date</dt><dd>{{ reg.created_at|dt }}</dd></div>
+      </dl>
+
+      <div class="note-band">
+        <strong>What happens next?</strong> The academy will contact you using the details you provided,
+        to confirm class availability, your schedule and the monthly fee. Submitting this form does not
+        complete payment.
+      </div>
+
+      <div class="success-actions">
+        <a class="btn btn-primary" href="{{ url_for('public.home') }}">Return to Home</a>
+        <a class="btn btn-outline" href="{{ url_for('public.contact_page') }}">Contact the Academy</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/success.js') }}" defer></script>
+{% endblock %}

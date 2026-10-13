@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Monthly Pricing — {{ site.academy_name }}{% endblock %}
+{% block description %}Monthly fees for every Quran learning program, published upfront. Currency and lesson frequency are shown per program.{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Monthly Pricing</h1>
+    <p class="muted">All fees are <strong>monthly</strong> and are set per program. Prices are managed by the academy and shown exactly as configured.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if programs %}
+    <div class="grid grid-3">
+      {% for p in programs %}
+      <article class="card pricing-card">
+        <h3>{{ p.name }}</h3>
+        <div class="pricing-amount">
+          {% if p.has_price %}
+            <span class="amount">{{ "%.2f"|format(p.monthly_price)|replace(".00","") }}</span>
+            <span class="currency">{{ p.currency }} / month</span>
+          {% else %}
+            <span class="amount amount-contact">Contact us<br>for pricing</span>
+          {% endif %}
+        </div>
+        <ul class="pricing-facts">
+          {% if p.lessons_per_week %}<li>{{ p.lessons_per_week }} lesson{{ 's' if p.lessons_per_week != 1 }} per week</li>{% endif %}
+          {% if p.lesson_duration_min %}<li>{{ p.lesson_duration_min }}-minute lessons</li>{% endif %}
+          {% if p.class_format %}<li>{{ p.class_format }}</li>{% endif %}
+          {% for s in p.included_services %}<li>{{ s }}</li>{% endfor %}
+        </ul>
+        <a class="btn btn-primary btn-block" href="{{ url_for('public.register_page') }}?program={{ p.slug }}">Register</a>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state card">
+      <h3>Pricing is being prepared</h3>
+      <p class="muted">Monthly fees will be published here once configured by the academy.</p>
+    </div>
+    {% endif %}
+
+    {% if discount_note %}
+    <p class="note-band">{{ discount_note }}</p>
+    {% endif %}
+    <p class="pricing-hint muted">{{ pricing_note }}</p>
+  </div>
+</section>
+{% endblock %}

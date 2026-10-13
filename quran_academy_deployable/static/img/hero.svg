@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" role="img" aria-label="Student studying the Quran">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#1c3f6e"/>
+      <stop offset="60%" stop-color="#122c52"/>
+      <stop offset="100%" stop-color="#0d2140"/>
+    </radialGradient>
+    <linearGradient id="pageGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#faf5ea"/>
+      <stop offset="100%" stop-color="#efe6d2"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e3c565"/>
+      <stop offset="100%" stop-color="#b8901f"/>
+    </linearGradient>
+    <pattern id="starPat" width="46" height="46" patternUnits="userSpaceOnUse">
+      <path d="M23 8l3.4 7.6L34 19l-7.6 3.4L23 30l-3.4-7.6L12 19l7.6-3.4z" fill="#c9a227" opacity="0.10"/>
+      <circle cx="0" cy="46" r="1.4" fill="#c9a227" opacity="0.10"/>
+      <circle cx="46" cy="0" r="1.4" fill="#c9a227" opacity="0.10"/>
+    </pattern>
+  </defs>
+
+  <!-- medallion background -->
+  <circle cx="260" cy="260" r="248" fill="url(#bgGrad)"/>
+  <circle cx="260" cy="260" r="248" fill="url(#starPat)"/>
+  <circle cx="260" cy="260" r="236" fill="none" stroke="#c9a227" stroke-width="1.5" opacity="0.55"/>
+  <circle cx="260" cy="260" r="228" fill="none" stroke="#c9a227" stroke-width="0.8" stroke-dasharray="2 7" opacity="0.5"/>
+
+  <!-- eight-point star medallion behind the book -->
+  <g opacity="0.35">
+    <rect x="118" y="118" width="284" height="284" fill="none" stroke="#c9a227" stroke-width="1.4" transform="rotate(45 260 260)"/>
+    <rect x="118" y="118" width="284" height="284" fill="none" stroke="#c9a227" stroke-width="1.4"/>
+  </g>
+
+  <!-- crescent and star -->
+  <mask id="heroCrescent">
+    <rect x="0" y="0" width="520" height="520" fill="white"/>
+    <circle cx="272" cy="126" r="26" fill="black"/>
+  </mask>
+  <circle cx="260" cy="132" r="31" fill="url(#goldGrad)" mask="url(#heroCrescent)"/>
+  <path d="M300 112l4 8.4 8.4 4-8.4 4-4 8.4-4-8.4-8.4-4 8.4-4z" fill="#e3c565"/>
+
+  <!-- sparkles -->
+  <path d="M120 180l2.6 5.4 5.4 2.6-5.4 2.6-2.6 5.4-2.6-5.4-5.4-2.6 5.4-2.6z" fill="#e3c565" opacity="0.8"/>
+  <path d="M398 168l2.2 4.6 4.6 2.2-4.6 2.2-2.2 4.6-2.2-4.6-4.6-2.2 4.6-2.2z" fill="#e3c565" opacity="0.6"/>
+  <path d="M410 320l2.4 5 5 2.4-5 2.4-2.4 5-2.4-5-5-2.4 5-2.4z" fill="#e3c565" opacity="0.55"/>
+  <path d="M104 316l2.2 4.6 4.6 2.2-4.6 2.2-2.2 4.6-2.2-4.6-4.6-2.2 4.6-2.2z" fill="#e3c565" opacity="0.5"/>
+
+  <!-- open Quran -->
+  <g>
+    <!-- gold cover base -->
+    <path d="M124 274 C 180 246, 234 246, 258 262 C 282 246, 336 246, 396 274 L 382 372 C 330 350, 288 350, 262 364 C 236 350, 194 350, 138 372 Z" fill="url(#goldGrad)"/>
+    <!-- left page -->
+    <path d="M138 276 C 186 252, 230 253, 254 266 L 244 354 C 220 342, 182 342, 150 360 Z" fill="url(#pageGrad)"/>
+    <!-- right page -->
+    <path d="M378 276 C 330 252, 286 253, 262 266 L 272 354 C 296 342, 334 342, 366 360 Z" fill="url(#pageGrad)"/>
+    <!-- spine -->
+    <path d="M254 266 L 262 266 L 272 354 L 262 364 Z" fill="#e6d9bd"/>
+    <!-- text lines left -->
+    <g stroke="#a9975f" stroke-width="3" stroke-linecap="round" opacity="0.75">
+      <path d="M160 282 C 190 270, 220 270, 244 280"/>
+      <path d="M158 296 C 190 284, 220 284, 243 294"/>
+      <path d="M156 310 C 188 298, 220 298, 242 308"/>
+      <path d="M154 324 C 186 312, 220 312, 241 322"/>
+    </g>
+    <!-- text lines right -->
+    <g stroke="#a9975f" stroke-width="3" stroke-linecap="round" opacity="0.75">
+      <path d="M356 282 C 326 270, 296 270, 272 280"/>
+      <path d="M358 296 C 326 284, 296 284, 273 294"/>
+      <path d="M360 310 C 328 298, 296 298, 274 308"/>
+      <path d="M362 324 C 330 312, 296 312, 275 322"/>
+    </g>
+    <!-- bookmark ribbon -->
+    <path d="M260 264 L 260 330 L 250 320 L 240 330 L 240 268 Z" fill="#8f1d2c"/>
+    <!-- gold page top edges -->
+    <path d="M124 274 C 180 246, 234 246, 258 262 C 282 246, 336 246, 396 274" fill="none" stroke="#e3c565" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- base line -->
+  <path d="M150 396 C 200 380, 320 380, 370 396" fill="none" stroke="#c9a227" stroke-width="2" opacity="0.45" stroke-linecap="round"/>
+
+  <!-- bismillah placeholder ornament -->
+  <g opacity="0.9">
+    <circle cx="260" cy="440" r="4" fill="#e3c565"/>
+    <path d="M212 440 h28 M280 440 h28" stroke="#c9a227" stroke-width="1.6" stroke-linecap="round"/>
+  </g>
+</svg>

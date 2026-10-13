@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Quran Learning Programs — {{ site.academy_name }}{% endblock %}
+{% block description %}Explore the academy's Quran learning programs: reading for beginners, reading improvement, Tajweed, memorization (Hifz), Arabic foundations and children's classes.{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Quran Learning Programs</h1>
+    <p class="muted">Every program is taught online. Pick the one that matches your level, then register — the academy confirms availability and schedule with you.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if programs %}
+    <div class="grid grid-3">
+      {% for p in programs %}
+      <article class="card program-card">
+        <h3>{{ p.name }}</h3>
+        <p>{{ p.description }}</p>
+        <ul class="program-facts">
+          {% if p.level_info %}<li><span>Level</span>{{ p.level_info }}</li>{% endif %}
+          {% if p.age_group %}<li><span>Ages</span>{{ p.age_group }}</li>{% endif %}
+          {% if p.class_format %}<li><span>Format</span>{{ p.class_format }}</li>{% endif %}
+        </ul>
+        <div class="program-price">
+          {% if p.has_price %}
+            <span class="price">{{ p.monthly_price|price(p.currency) }}</span>
+          {% else %}
+            <span class="price price-contact">Contact us for pricing</span>
+          {% endif %}
+        </div>
+        <a class="btn btn-primary btn-block" href="{{ url_for('public.register_page') }}?program={{ p.slug }}">Register for This Program</a>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state card">
+      <h3>Programs are being prepared</h3>
+      <p class="muted">Learning programs will be published here soon. Please check back shortly or <a href="{{ url_for('public.contact_page') }}">contact the academy</a>.</p>
+    </div>
+    {% endif %}
+    <p class="pricing-hint muted center">See the <a href="{{ url_for('public.pricing_page') }}">Monthly Pricing page</a> for full pricing details.</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Create First Administrator — {{ site.academy_name }}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-body">
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" width="52" height="52" class="auth-logo">
+    <h1>Create First Administrator</h1>
+    <p class="muted">This one-time setup creates the admin account for the dashboard. It disappears once an administrator exists.</p>
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+    <form method="post" action="{{ url_for('admin.setup_submit') }}">
+      <div class="field">
+        <label for="name">Administrator name</label>
+        <input id="name" name="name" type="text" maxlength="120" required autofocus>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" maxlength="120" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="password">Password (at least 10 characters)</label>
+        <input id="password" name="password" type="password" minlength="10" autocomplete="new-password" required>
+      </div>
+      <div class="field">
+        <label for="confirm">Confirm password</label>
+        <input id="confirm" name="confirm" type="password" minlength="10" autocomplete="new-password" required>
+      </div>
+      <button class="btn btn-gold btn-block" type="submit">Create Administrator</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

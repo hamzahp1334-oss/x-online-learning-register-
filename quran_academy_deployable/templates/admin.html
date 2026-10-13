@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Admin Dashboard — {{ site.academy_name }}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-brand">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" width="34" height="34">
+      <div>
+        <strong>{{ site.academy_name }}</strong>
+        <span class="muted small">Admin Dashboard</span>
+      </div>
+    </div>
+    <nav class="admin-nav" id="adminNav">
+      <button class="admin-tab active" data-tab="overview">Overview</button>
+      <button class="admin-tab" data-tab="registrations">Registrations <span class="badge" id="navNewCount" hidden></span></button>
+      <button class="admin-tab" data-tab="programs">Programs</button>
+      <button class="admin-tab" data-tab="pricing">Pricing</button>
+      <button class="admin-tab" data-tab="content">Website Content</button>
+      <button class="admin-tab" data-tab="faqs">FAQ</button>
+      <button class="admin-tab" data-tab="messages">Messages <span class="badge" id="navMsgCount" hidden></span></button>
+      <button class="admin-tab" data-tab="sheets">Google Sheets</button>
+      <button class="admin-tab" data-tab="audit">Audit Log</button>
+      <button class="admin-tab" data-tab="account">Account</button>
+    </nav>
+    <div class="admin-sidebar-footer">
+      <span class="small" id="adminEmail">{{ admin.email }}</span>
+      <form method="post" action="{{ url_for('admin.logout') }}">
+        <button class="btn btn-ghost btn-sm" type="submit">Sign out</button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <button class="nav-toggle admin-menu-toggle" id="adminMenuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+      <h1 id="adminTitle">Overview</h1>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('public.home') }}" target="_blank" rel="noopener">View website ↗</a>
+    </header>
+
+    <main class="admin-content">
+      <!-- Overview -->
+      <section class="admin-panel active" id="panel-overview">
+        <div class="stat-grid" id="statGrid"><div class="muted">Loading statistics…</div></div>
+        <div class="panel-cols">
+          <div class="card admin-card">
+            <h3>Registrations — last 14 days</h3>
+            <div id="trendChart" class="trend-chart"></div>
+          </div>
+          <div class="card admin-card">
+            <h3>Integration status</h3>
+            <div id="integrationStatus" class="muted">Loading…</div>
+          </div>
+        </div>
+        <div class="card admin-card">
+          <h3>Recent registrations</h3>
+          <div class="table-wrap" id="recentTable"></div>
+        </div>
+      </section>
+
+      <!-- Registrations -->
+      <section class="admin-panel" id="panel-registrations">
+        <div class="card admin-card filter-bar">
+          <div class="filter-grid">
+            <input type="search" id="regSearch" placeholder="Search name, phone, ID, email…">
+            <select id="regStatusFilter">
+              <option value="">All statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="active">Active</option>
+              <option value="rejected">Rejected</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select id="regProgramFilter"><option value="">All programs</option></select>
+            <input type="text" id="regCountryFilter" placeholder="Country">
+            <label class="filter-date">From <input type="date" id="regDateFrom"></label>
+            <label class="filter-date">To <input type="date" id="regDateTo"></label>
+            <select id="regSort">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="name">Name A–Z</option>
+            </select>
+            <label class="checkbox-label"><input type="checkbox" id="regArchived"> Show archived</label>
+          </div>
+          <div class="filter-actions">
+            <button class="btn btn-ghost btn-sm" id="exportFilteredBtn">Export filtered CSV</button>
+            <button class="btn btn-ghost btn-sm" id="exportSelectedBtn" disabled>Export selected (<span id="selCount">0</span>)</button>
+          </div>
+        </div>
+        <div class="card admin-card">
+          <div class="table-wrap" id="registrationsTable"><div class="muted">Loading…</div></div>
+          <div class="table-pager" id="regPager"></div>
+        </div>
+      </section>
+
+      <!-- Programs -->
+      <section class="admin-panel" id="panel-programs">
+        <div class="panel-head-row">
+          <p class="muted">Programs shown on the public website. Programs marked <span class="badge badge-sample">Sample</span> were seeded during development — edit them with the academy's real information.</p>
+          <button class="btn btn-primary" id="addProgramBtn">+ New Program</button>
+        </div>
+        <div class="card admin-card">
+          <div class="table-wrap" id="programsTable"><div class="muted">Loading…</div></div>
+        </div>
+      </section>
+
+      <!-- Pricing -->
+      <section class="admin-panel" id="panel-pricing">
+        <p class="muted">Monthly fees are editable here. Leave a price empty to show <em>"Contact us for pricing"</em> on the website. Changing a price never changes prices already saved on past registrations.</p>
+        <div class="card admin-card">
+          <div class="table-wrap" id="pricingTable"><div class="muted">Loading…</div></div>
+        </div>
+        <div class="card admin-card">
+          <h3>Discount / note shown on pricing page</h3>
+          <div class="field">
+            <textarea id="discountNote" rows="2" maxlength="500"></textarea>
+          </div>
+          <button class="btn btn-primary btn-sm" id="saveDiscountNote">Save note</button>
+        </div>
+      </section>
+
+      <!-- Content -->
+      <section class="admin-panel" id="panel-content">
+        <div class="card admin-card">
+          <h3>Academy identity</h3>
+          <div class="field-row">
+            <div class="field"><label>Academy name</label><input id="set-academy_name" maxlength="120"></div>
+            <div class="field"><label>Tagline</label><input id="set-academy_tagline" maxlength="200"></div>
+          </div>
+          <div class="field"><label>Homepage headline</label><input id="set-hero_headline" maxlength="200"></div>
+          <div class="field"><label>Homepage supporting text</label><textarea id="set-hero_text" rows="2" maxlength="600"></textarea></div>
+          <div class="field-row">
+            <div class="field"><label>Announcement banner text</label><input id="set-announcement_text" maxlength="300"></div>
+            <div class="field checkbox-top"><label class="checkbox-label"><input type="checkbox" id="set-announcement_enabled"> Show announcement banner</label></div>
+          </div>
+          <div class="field">
+            <label>Logo image (PNG / JPG / WebP, max 2 MB)</label>
+            <div class="logo-upload-row">
+              <input type="file" id="logoFile" accept=".png,.jpg,.jpeg,.webp">
+              <button class="btn btn-ghost btn-sm" id="uploadLogoBtn">Upload logo</button>
+              <img id="logoPreview" alt="Current logo" class="logo-preview" hidden>
+            </div>
+          </div>
+        </div>
+
+        <div class="card admin-card">
+          <h3>About Us page sections</h3>
+          <div id="aboutEditor"></div>
+          <button class="btn btn-ghost btn-sm" id="addSectionBtn">+ Add section</button>
+        </div>
+
+        <div class="card admin-card">
+          <h3>Contact details</h3>
+          <p class="muted small">Only published details appear on the public Contact page — leave empty what is not yet confirmed.</p>
+          <div class="field-row">
+            <div class="field"><label>Contact email</label><input id="set-contact_email" type="email" maxlength="120"></div>
+            <div class="field"><label>Contact phone</label><input id="set-contact_phone" maxlength="60"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>WhatsApp number (e.g. +251912345678)</label><input id="set-whatsapp_number" maxlength="60"></div>
+            <div class="field"><label>Working hours</label><input id="set-working_hours" maxlength="300"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Telegram link</label><input id="set-telegram_link" type="url" maxlength="300" placeholder="https://t.me/…"></div>
+            <div class="field"><label>Facebook link</label><input id="set-facebook_link" type="url" maxlength="300" placeholder="https://facebook.com/…"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Instagram link</label><input id="set-instagram_link" type="url" maxlength="300" placeholder="https://instagram.com/…"></div>
+            <div class="field"><label>YouTube link</label><input id="set-youtube_link" type="url" maxlength="300" placeholder="https://youtube.com/…"></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="saveContentBtn">Save website content</button>
+      </section>
+
+      <!-- FAQs -->
+      <section class="admin-panel" id="panel-faqs">
+        <div class="panel-head-row">
+          <p class="muted">Questions and answers shown on the public FAQ page.</p>
+          <button class="btn btn-primary" id="addFaqBtn">+ New Question</button>
+        </div>
+        <div id="faqEditor"><div class="muted">Loading…</div></div>
+      </section>
+
+      <!-- Messages -->
+      <section class="admin-panel" id="panel-messages">
+        <div class="card admin-card">
+          <h3>Contact form messages</h3>
+          <div id="messagesList" class="muted">Loading…</div>
+        </div>
+      </section>
+
+      <!-- Sheets -->
+      <section class="admin-panel" id="panel-sheets">
+        <div class="card admin-card" id="sheetsStatusCard"><div class="muted">Loading…</div></div>
+        <div class="card admin-card">
+          <h3>Actions</h3>
+          <div class="sheets-actions">
+            <button class="btn btn-primary" id="syncNowBtn">Sync to Google Sheets</button>
+            <button class="btn btn-outline" id="retryFailedBtn">Retry Failed Syncs</button>
+          </div>
+          <p class="muted small">"Sync now" sends every pending registration to the spreadsheet. Rows are matched by Registration ID, so re-syncing never creates duplicates.</p>
+        </div>
+      </section>
+
+      <!-- Audit -->
+      <section class="admin-panel" id="panel-audit">
+        <div class="card admin-card">
+          <div class="table-wrap" id="auditTable"><div class="muted">Loading…</div></div>
+        </div>
+      </section>
+
+      <!-- Account -->
+      <section class="admin-panel" id="panel-account">
+        <div class="card admin-card narrow-card">
+          <h3>Change password</h3>
+          <div class="field"><label>Current password</label><input type="password" id="pwCurrent" autocomplete="current-password"></div>
+          <div class="field"><label>New password (min 10 characters)</label><input type="password" id="pwNew" autocomplete="new-password"></div>
+          <button class="btn btn-primary" id="changePwBtn">Change password</button>
+          <p class="muted small">Changing your password signs out all sessions.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal card" id="modalBox" role="dialog" aria-modal="true"></div>
+</div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}" defer></script>
+</body>
+</html>

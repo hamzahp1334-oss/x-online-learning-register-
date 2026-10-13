@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  quran-academy:
+    build: .
+    container_name: quran_academy_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - STUDENT_BOT_TOKEN=${STUDENT_BOT_TOKEN:-8594518638:AAFxCnlFmhNZhwc-tLKA1rjWBhIaAhoeHe8}
+      - ADMIN_BOT_TOKEN=${ADMIN_BOT_TOKEN:-8914345551:AAG6RMn_og0u1srXZ53z-RIuwAx5UaHvdBM}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@academy.test}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-adminpass12345}
+      - ADMIN_NAME=${ADMIN_NAME:-Administrator}
+    volumes:
+      - academy_data:/app/data
+
+volumes:
+  academy_data:

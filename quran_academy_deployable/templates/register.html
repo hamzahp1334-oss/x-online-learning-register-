@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Student Registration — {{ site.academy_name }}{% endblock %}
+{% block description %}Register online for a Quran learning program. Fill in the student's details and preferred schedule — the academy will contact you to confirm.{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Student Registration</h1>
+    <p class="muted">Complete the form below to register. Fields marked <span class="req">*</span> are required.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container register-grid">
+    <form id="registerForm" class="card form-card" novalidate>
+      <h2 class="form-section-title">1. Choose a program</h2>
+      {% if programs %}
+      <fieldset class="program-picker" id="programPicker">
+        <legend class="sr-only">Selected Quran learning program</legend>
+        {% for p in programs %}
+        <label class="program-option">
+          <input type="radio" name="program_slug" value="{{ p.slug }}"
+                 {{ 'checked' if preselect == p.slug or (not preselect and loop.first) }}>
+          <span class="program-option-body">
+            <span class="program-option-name">{{ p.name }}</span>
+            <span class="program-option-desc">{{ p.description }}</span>
+            <span class="program-option-price">
+              {% if p.has_price %}{{ p.monthly_price|price(p.currency) }}
+              {% else %}Contact us for pricing{% endif %}
+            </span>
+          </span>
+        </label>
+        {% endfor %}
+        <p class="field-error" data-error-for="program"></p>
+      </fieldset>
+      {% else %}
+      <div class="empty-state">
+        <p class="muted">No programs are open for registration right now. Please <a href="{{ url_for('public.contact_page') }}">contact the academy</a>.</p>
+      </div>
+      {% endif %}
+
+      <h2 class="form-section-title">2. Student information</h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="rf-name">Student's full name <span class="req">*</span></label>
+          <input id="rf-name" name="full_name" type="text" maxlength="120" autocomplete="name" required>
+          <p class="field-error" data-error-for="full_name"></p>
+        </div>
+        <div class="field field-age">
+          <label for="rf-age">Student's age <span class="req">*</span></label>
+          <input id="rf-age" name="age" type="number" min="3" max="110" inputmode="numeric" required>
+          <p class="field-error" data-error-for="age"></p>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="rf-country">Country <span class="req">*</span></label>
+          <input id="rf-country" name="country" type="text" maxlength="60" autocomplete="country-name" required>
+          <p class="field-error" data-error-for="country"></p>
+        </div>
+        <div class="field">
+          <label for="rf-city">City or location <span class="req">*</span></label>
+          <input id="rf-city" name="city" type="text" maxlength="60" required>
+          <p class="field-error" data-error-for="city"></p>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="rf-phone">Phone number (with country code) <span class="req">*</span></label>
+          <input id="rf-phone" name="phone" type="tel" maxlength="20" placeholder="+251912345678" autocomplete="tel" required>
+          <p class="field-error" data-error-for="phone"></p>
+        </div>
+        <div class="field">
+          <label for="rf-whatsapp">WhatsApp number (if different)</label>
+          <input id="rf-whatsapp" name="whatsapp" type="tel" maxlength="20" placeholder="+251912345678">
+          <p class="field-error" data-error-for="whatsapp"></p>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="rf-email">Email address (if available)</label>
+          <input id="rf-email" name="email" type="email" maxlength="120" autocomplete="email">
+          <p class="field-error" data-error-for="email"></p>
+        </div>
+        <div class="field">
+          <label for="rf-gender">Gender (optional)</label>
+          <select id="rf-gender" name="gender">
+            <option value="">Prefer not to say</option>
+            <option>Female</option>
+            <option>Male</option>
+          </select>
+          <p class="field-error" data-error-for="gender"></p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="rf-level">Current Quran reading level <span class="req">*</span></label>
+        <select id="rf-level" name="reading_level" required>
+          <option value="">Select the student's current level…</option>
+          <option>Complete beginner</option>
+          <option>Learning Arabic letters</option>
+          <option>Can read slowly</option>
+          <option>Can read but needs Tajweed improvement</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+          <option>Quran memorization (Hifz)</option>
+        </select>
+        <p class="field-error" data-error-for="reading_level"></p>
+      </div>
+
+      <h2 class="form-section-title">3. Preferred schedule</h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="rf-schedule">Preferred learning schedule <span class="req">*</span></label>
+          <select id="rf-schedule" name="preferred_schedule" required>
+            <option value="">Select a schedule…</option>
+            <option>Morning</option>
+            <option>Afternoon</option>
+            <option>Evening</option>
+            <option>Flexible</option>
+          </select>
+          <p class="field-error" data-error-for="preferred_schedule"></p>
+        </div>
+        <div class="field">
+          <label for="rf-format">Preferred class format (optional)</label>
+          <select id="rf-format" name="class_format">
+            <option value="">No preference</option>
+            <option>One-to-one</option>
+            <option>Small group</option>
+            <option>Either is fine</option>
+          </select>
+          <p class="field-error" data-error-for="class_format"></p>
+        </div>
+      </div>
+
+      <h2 class="form-section-title" id="guardianTitle">4. Parent or guardian
+        <span class="form-section-note" id="guardianNote">(required for students under 18)</span>
+      </h2>
+      <div class="field-row">
+        <div class="field">
+          <label for="rf-pname">Parent or guardian's full name</label>
+          <input id="rf-pname" name="parent_name" type="text" maxlength="120">
+          <p class="field-error" data-error-for="parent_name"></p>
+        </div>
+        <div class="field">
+          <label for="rf-pphone">Parent or guardian's contact number</label>
+          <input id="rf-pphone" name="parent_phone" type="tel" maxlength="20" placeholder="+251912345678">
+          <p class="field-error" data-error-for="parent_phone"></p>
+        </div>
+      </div>
+
+      <h2 class="form-section-title">5. Additional information (optional)</h2>
+      <div class="field">
+        <label for="rf-experience">Previous Quran learning experience</label>
+        <textarea id="rf-experience" name="previous_experience" rows="3" maxlength="500" placeholder="For example: attended classes for one year, can read slowly…"></textarea>
+        <p class="field-error" data-error-for="previous_experience"></p>
+      </div>
+      <div class="field">
+        <label for="rf-goals">Additional notes or learning goals</label>
+        <textarea id="rf-goals" name="learning_goals" rows="3" maxlength="1000" placeholder="Anything the academy should know about the student's goals…"></textarea>
+        <p class="field-error" data-error-for="learning_goals"></p>
+      </div>
+      <div class="field">
+        <label for="rf-referral">How did you hear about the academy?</label>
+        <input id="rf-referral" name="referral_source" type="text" maxlength="120" placeholder="For example: friend, Facebook, Telegram…">
+        <p class="field-error" data-error-for="referral_source"></p>
+      </div>
+
+      <div class="form-footer">
+        <button type="submit" class="btn btn-gold btn-lg btn-block" id="submitBtn"
+                data-loading-text="Submitting registration…">Submit Registration</button>
+        <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+        <p class="muted small center">Submitting this form does not complete any payment. The academy will contact you to confirm availability, schedule and fees.</p>
+      </div>
+    </form>
+
+    <aside class="register-summary card" id="summaryCard" aria-live="polite">
+      <h3>Your selection</h3>
+      <div id="summaryBody">
+        <p class="muted">Choose a program to see its monthly price here.</p>
+      </div>
+      <div class="summary-note">
+        <p class="small muted">The academy will contact you after submission to confirm class availability, schedule and payment.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/register.js') }}" defer></script>
+{% endblock %}

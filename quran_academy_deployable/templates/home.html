@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}{{ site.academy_name }} — Learn the Quran Online, From Anywhere{% endblock %}
+{% block description %}Register online for structured Quran learning programs — reading, Tajweed, memorization, Arabic foundations and children's classes. Clear monthly pricing.{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="hero-kicker">{{ site.academy_tagline }}</p>
+      <h1>{{ site.hero_headline }}</h1>
+      <p class="hero-text">{{ site.hero_text }}</p>
+      <div class="hero-actions">
+        <a class="btn btn-gold btn-lg" href="{{ url_for('public.register_page') }}">Register Now</a>
+        <a class="btn btn-outline btn-lg" href="{{ url_for('public.programs_page') }}">Explore Programs</a>
+      </div>
+      <p class="hero-note muted">Registration is free of obligation — the academy contacts you to confirm availability and schedule.</p>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <img src="{{ url_for('static', filename='img/hero.svg') }}" alt="" width="520" height="520">
+    </div>
+  </div>
+</section>
+
+<section class="section trust-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Why learn with us</h2>
+      <p class="muted">A learning experience designed around each student</p>
+    </div>
+    <div class="grid grid-3">
+      <div class="card feature-card">
+        <div class="feature-icon">{% include "icons/book.html" %}</div>
+        <h3>Structured learning programs</h3>
+        <p>Clear programs for every stage — from the Arabic letters to memorization and revision.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">{% include "icons/home.html" %}</div>
+        <h3>Online learning from home</h3>
+        <p>Attend classes from anywhere. All you need is a device and a calm place to learn.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">{% include "icons/levels.html" %}</div>
+        <h3>Programs for every level</h3>
+        <p>Choose the program that matches your current reading level and learning goals.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">{% include "icons/price.html" %}</div>
+        <h3>Clear monthly pricing</h3>
+        <p>Monthly fees for each program are published upfront — no hidden costs.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">{% include "icons/support.html" %}</div>
+        <h3>Personal support</h3>
+        <p>The academy follows up on every registration to confirm schedule and availability.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">{% include "icons/child.html" %}</div>
+        <h3>Classes for children</h3>
+        <p>Age-appropriate programs for young learners, with information shared with parents.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if programs %}
+<section class="section alt-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Our programs</h2>
+      <p class="muted">Choose the program that fits your level</p>
+    </div>
+    <div class="grid grid-3">
+      {% for p in programs %}
+      <div class="card program-card">
+        <h3>{{ p.name }}</h3>
+        <p>{{ p.description }}</p>
+        <div class="program-meta">
+          {% if p.level_info %}<span class="chip">{{ p.level_info }}</span>{% endif %}
+        </div>
+        <div class="program-price">
+          {% if p.has_price %}
+            <span class="price">{{ p.monthly_price|price(p.currency) }}</span>
+          {% else %}
+            <span class="price price-contact">Contact us for pricing</span>
+          {% endif %}
+        </div>
+        <a class="btn btn-primary btn-block" href="{{ url_for('public.register_page') }}?program={{ p.slug }}">Register for This Program</a>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="center">
+      <a class="btn btn-outline" href="{{ url_for('public.programs_page') }}">View all {{ program_count }} programs</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>How it works</h2>
+      <p class="muted">Three simple steps to start learning</p>
+    </div>
+    <div class="grid grid-3 steps">
+      <div class="step">
+        <span class="step-num">1</span>
+        <h3>Register online</h3>
+        <p>Fill in the registration form with your details and preferred program.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span>
+        <h3>The academy contacts you</h3>
+        <p>We confirm class availability, schedule and monthly fee with you directly.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span>
+        <h3>Start learning</h3>
+        <p>Begin your program with a schedule agreed between you and the academy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container cta-inner">
+    <div>
+      <h2>Ready to begin your Quran journey?</h2>
+      <p>Register today — the academy will contact you to confirm the rest.</p>
+    </div>
+    <a class="btn btn-gold btn-lg" href="{{ url_for('public.register_page') }}">Register Now</a>
+  </div>
+</section>
+{% endblock %}

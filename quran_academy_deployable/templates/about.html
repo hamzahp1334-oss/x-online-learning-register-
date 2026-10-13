@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}About Us — {{ site.academy_name }}{% endblock %}
+{% block description %}About the academy: teaching approach, learning objectives, teachers, and mission.{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>About Us</h1>
+    <p class="muted">Who we are and how we teach</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container narrow">
+    {% for s in sections %}
+    <article class="card about-card">
+      <h2>{{ s.title }}</h2>
+      <p class="pre-line">{{ s.body }}</p>
+    </article>
+    {% else %}
+    <div class="empty-state card">
+      <h3>Content coming soon</h3>
+      <p class="muted">This page will be completed once the academy provides accurate information.</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

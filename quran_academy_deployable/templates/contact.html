@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Contact — {{ site.academy_name }}{% endblock %}
+{% block description %}Contact the academy by email, phone, WhatsApp or Telegram, or send a message through the contact form.{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container">
+    <h1>Contact the Academy</h1>
+    <p class="muted">We reply to messages as soon as possible</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-grid">
+    <div class="card contact-card">
+      <h2>Send a message</h2>
+      <form id="contactForm" novalidate>
+        <div class="field">
+          <label for="cf-name">Your name <span class="req">*</span></label>
+          <input id="cf-name" name="name" type="text" maxlength="120" autocomplete="name" required>
+          <p class="field-error" data-error-for="name"></p>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="cf-email">Email</label>
+            <input id="cf-email" name="email" type="email" maxlength="120" autocomplete="email">
+            <p class="field-error" data-error-for="email"></p>
+          </div>
+          <div class="field">
+            <label for="cf-phone">Phone (with country code)</label>
+            <input id="cf-phone" name="phone" type="tel" maxlength="20" placeholder="+251912345678">
+            <p class="field-error" data-error-for="phone"></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cf-message">Message <span class="req">*</span></label>
+          <textarea id="cf-message" name="message" rows="5" maxlength="2000" required></textarea>
+          <p class="field-error" data-error-for="message"></p>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" data-loading-text="Sending…">Send Message</button>
+        <p class="form-status" id="contactStatus" role="status"></p>
+      </form>
+    </div>
+
+    <div class="card contact-info-card">
+      <h2>Academy contact details</h2>
+      <ul class="contact-list">
+        <li>
+          <span class="contact-label">Email</span>
+          {% if site.contact_email %}
+          <a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>
+          {% else %}<span class="muted">Not yet published</span>{% endif %}
+        </li>
+        <li>
+          <span class="contact-label">Phone</span>
+          {% if site.contact_phone %}
+          <a href="tel:{{ site.contact_phone }}">{{ site.contact_phone }}</a>
+          {% else %}<span class="muted">Not yet published</span>{% endif %}
+        </li>
+        <li>
+          <span class="contact-label">WhatsApp</span>
+          {% if site.whatsapp_number %}
+          <a href="https://wa.me/{{ site.whatsapp_number|replace('+','')|replace(' ','') }}" target="_blank" rel="noopener">Message on WhatsApp</a>
+          {% else %}<span class="muted">Not yet published</span>{% endif %}
+        </li>
+        <li>
+          <span class="contact-label">Telegram</span>
+          {% if site.telegram_link %}
+          <a href="{{ site.telegram_link }}" target="_blank" rel="noopener">Message on Telegram</a>
+          {% else %}<span class="muted">Not yet published</span>{% endif %}
+        </li>
+        <li>
+          <span class="contact-label">Working hours</span>
+          {% if site.working_hours %}<span>{{ site.working_hours }}</span>
+          {% else %}<span class="muted">Not yet published</span>{% endif %}
+        </li>
+      </ul>
+      {% if site.facebook_link or site.instagram_link or site.youtube_link %}
+      <div class="social-links">
+        {% if site.facebook_link %}<a href="{{ site.facebook_link }}" target="_blank" rel="noopener">Facebook</a>{% endif %}
+        {% if site.instagram_link %}<a href="{{ site.instagram_link }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+        {% if site.youtube_link %}<a href="{{ site.youtube_link }}" target="_blank" rel="noopener">YouTube</a>{% endif %}
+      </div>
+      {% endif %}
+      <p class="muted small">Contact details are managed by the academy and published here once provided.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/contact.js') }}" defer></script>
+{% endblock %}

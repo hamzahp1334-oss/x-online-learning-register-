@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ site.academy_name }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}Register online for structured Quran learning programs — reading, Tajweed, memorization and Arabic foundations.{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}{{ site.academy_name }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Learn the Quran online, from anywhere.{% endblock %}">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% if site.announcement_enabled and site.announcement_text %}
+<div class="announcement" role="note">{{ site.announcement_text }}</div>
+{% endif %}
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="{{ url_for('public.home') }}">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" class="brand-mark" width="40" height="40">
+      <span class="brand-name">{{ site.academy_name }}</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+      <a href="{{ url_for('public.home') }}" class="{{ 'active' if current_path == '/' }}">Home</a>
+      <a href="{{ url_for('public.programs_page') }}" class="{{ 'active' if current_path.startswith('/programs') }}">Programs</a>
+      <a href="{{ url_for('public.pricing_page') }}" class="{{ 'active' if current_path.startswith('/pricing') }}">Monthly Pricing</a>
+      <a href="{{ url_for('public.about_page') }}" class="{{ 'active' if current_path.startswith('/about') }}">About Us</a>
+      <a href="{{ url_for('public.faq_page') }}" class="{{ 'active' if current_path.startswith('/faq') }}">FAQ</a>
+      <a href="{{ url_for('public.contact_page') }}" class="{{ 'active' if current_path.startswith('/contact') }}">Contact</a>
+      <a href="{{ url_for('public.register_page') }}" class="btn btn-gold btn-nav">Register Now</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-col footer-brand">
+      <div class="brand brand-footer">
+        <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" width="36" height="36">
+        <span>{{ site.academy_name }}</span>
+      </div>
+      <p class="footer-arabic" dir="rtl" lang="ar">وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا</p>
+      <p class="muted small">Online Quran learning programs for students of all levels.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <a href="{{ url_for('public.programs_page') }}">Programs</a>
+      <a href="{{ url_for('public.pricing_page') }}">Monthly Pricing</a>
+      <a href="{{ url_for('public.register_page') }}">Register Now</a>
+      <a href="{{ url_for('public.faq_page') }}">FAQ</a>
+    </div>
+    <div class="footer-col">
+      <h4>Academy</h4>
+      <a href="{{ url_for('public.about_page') }}">About Us</a>
+      <a href="{{ url_for('public.contact_page') }}">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      {% if site.contact_email %}<a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>{% endif %}
+      {% if site.contact_phone %}<a href="tel:{{ site.contact_phone }}">{{ site.contact_phone }}</a>{% endif %}
+      {% if site.whatsapp_number %}<a href="https://wa.me/{{ site.whatsapp_number|replace('+','')|replace(' ','') }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
+      {% if site.telegram_link %}<a href="{{ site.telegram_link }}" target="_blank" rel="noopener">Telegram</a>{% endif %}
+      {% if not site.contact_email and not site.contact_phone and not site.whatsapp_number %}
+      <p class="muted small">Contact details will be published once provided by the academy.</p>
+      {% endif %}
+      {% if site.working_hours %}<p class="muted small">{{ site.working_hours }}</p>{% endif %}
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>&copy; {{ now_year if now_year else '' }} {{ site.academy_name }}. All rights reserved.</span>
+    <a href="{{ url_for('admin.index') }}" class="footer-admin-link">Admin</a>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

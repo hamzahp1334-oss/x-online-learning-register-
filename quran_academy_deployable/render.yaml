@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: quran-academy-system
+    runtime: python
+    plan: free
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: python start.py
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: HOST
+        value: "0.0.0.0"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHONPATH
+        value: "."
+      - key: STUDENT_BOT_TOKEN
+        sync: false
+      - key: ADMIN_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: ADMIN_EMAIL
+        value: "admin@academy.test"
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_NAME
+        value: "Administrator"
