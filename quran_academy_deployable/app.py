@@ -152,6 +152,16 @@ def main() -> None:
                               daemon=True, name="sheets-worker")
     worker.start()
 
+    # Start Telegram bots in background if tokens are configured
+    if os.environ.get("STUDENT_BOT_TOKEN") or os.environ.get("ADMIN_BOT_TOKEN") or os.environ.get("TELEGRAM_BOT_TOKEN"):
+        try:
+            from bot import runner
+            bot_thread = threading.Thread(target=runner.main, daemon=True, name="bot-runner")
+            bot_thread.start()
+            print("[startup] Telegram bots started in background thread.")
+        except Exception as e:
+            print(f"[startup] Could not start bot runner: {e}")
+
     app = create_app()
     port = int(os.environ.get("PORT", "3000"))
     host = os.environ.get("HOST", "0.0.0.0")
