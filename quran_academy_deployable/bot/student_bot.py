@@ -65,6 +65,9 @@ def main_menu_keyboard(telegram_user_id: int | None = None) -> InlineKeyboardMar
             InlineKeyboardButton(i18n.t("btn_language", lang), callback_data="stu_pick_lang"),
         ],
         [
+            InlineKeyboardButton(i18n.t("btn_sheet", lang), url="https://docs.google.com/spreadsheets/d/1ydLl6IVoEZdXFEZB9rgPHwPn8iBbzUduS4d4IJ8sHFk/edit?gid=0#gid=0"),
+        ],
+        [
             InlineKeyboardButton(i18n.t("btn_admin", lang), url="https://t.me/xmzgebaadminbot"),
         ],
     ]

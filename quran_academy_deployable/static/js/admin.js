@@ -26,6 +26,7 @@
   var STATUS_BADGE = {
     new: "badge-new", contacted: "badge-contacted", confirmed: "badge-confirmed",
     active: "badge-active", rejected: "badge-rejected", cancelled: "badge-cancelled",
+    pending_verification: "badge-contacted",
   };
   var SYNC_BADGE = {
     synced: "badge-synced", pending: "badge-pending", failed: "badge-failed",
@@ -134,6 +135,7 @@
       var stats = s.stats;
       var cards = [
         { num: stats.total, label: "Total registrations" },
+        { num: stats.pending_verification || 0, label: "Pending Verification" },
         { num: stats.new, label: "New" },
         { num: stats.awaiting_contact, label: "Contacted — awaiting confirmation" },
         { num: stats.confirmed, label: "Confirmed" },
@@ -390,7 +392,7 @@
         detailItem("Admin notes", r.admin_notes || "—") +
         '<h4 style="margin:1.2rem 0 0.6rem">Change status</h4>' +
         '<div class="status-btns">' +
-        ["contacted", "confirmed", "active", "rejected", "cancelled", "new"].map(function (s) {
+        ["pending_verification", "confirmed", "active", "contacted", "rejected", "cancelled", "new"].map(function (s) {
           return '<button class="btn btn-ghost btn-sm status-set" data-status="' + s + '"' +
             (r.status === s ? " disabled" : "") + ">" + esc(s) + "</button>";
         }).join("") + "</div>" +
@@ -833,7 +835,8 @@
           integrationRow("Pending jobs", s.pending) +
           integrationRow("Failed jobs", s.failed) +
           integrationRow("Last successful sync", s.last_success_at ? fmtDate(s.last_success_at) : "—") +
-          (s.last_error ? integrationRow("Last error", s.last_error, "err") : "");
+          (s.last_error ? integrationRow("Last error", s.last_error, "err") : "") +
+          '<div style="margin-top:1rem;"><a class="btn btn-outline btn-sm" href="https://docs.google.com/spreadsheets/d/1ydLl6IVoEZdXFEZB9rgPHwPn8iBbzUduS4d4IJ8sHFk/edit?gid=0#gid=0" target="_blank" rel="noopener">📊 Open Live Google Sheet ↗</a></div>';
       } else {
         html += integrationRow("Status", "Not configured", "err") +
           '<p class="muted small">Registrations are saved safely in the database either way — the queue waits until Google Sheets is configured, and nothing is lost.</p>' +

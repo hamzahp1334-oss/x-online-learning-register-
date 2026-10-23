@@ -20,7 +20,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 _conn: sqlite3.Connection | None = None
 _lock = threading.RLock()
 
-REG_STATUSES = ("new", "contacted", "confirmed", "active", "rejected", "cancelled")
+REG_STATUSES = ("new", "pending_verification", "contacted", "confirmed", "active", "rejected", "cancelled")
 READING_LEVELS = (
     "Complete beginner",
     "Learning Arabic letters",
@@ -500,6 +500,13 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS admin_subscribers (
+  telegram_user_id INTEGER PRIMARY KEY,
+  first_name       TEXT NOT NULL DEFAULT '',
+  username         TEXT NOT NULL DEFAULT '',
+  subscribed_at    TEXT NOT NULL
+);
+
 """
 
 INDEXES_SQL = """
@@ -519,6 +526,7 @@ CREATE INDEX IF NOT EXISTS idx_sched_teacher  ON class_schedules(teacher_id);
 CREATE INDEX IF NOT EXISTS idx_prog_category  ON programs(category);
 CREATE INDEX IF NOT EXISTS idx_learn_student  ON learning_progress(student_id);
 CREATE INDEX IF NOT EXISTS idx_pay_student    ON payment_records(student_id);
+CREATE INDEX IF NOT EXISTS idx_admin_sub_id   ON admin_subscribers(telegram_user_id);
 """
 
 SAMPLE_PROGRAMS = [
@@ -721,6 +729,14 @@ def migrate_db() -> None:
             "  updated_at       TEXT NOT NULL"
             ")"
         )
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS admin_subscribers ("
+            "  telegram_user_id INTEGER PRIMARY KEY,"
+            "  first_name       TEXT NOT NULL DEFAULT '',"
+            "  username         TEXT NOT NULL DEFAULT '',"
+            "  subscribed_at    TEXT NOT NULL"
+            ")"
+        )
         conn.commit()
 
 
@@ -861,6 +877,23 @@ def get_student_payments(student_id: int) -> list[dict]:
     )
 
 
+def register_admin_subscriber(telegram_user_id: int, first_name: str = "", username: str = "") -> None:
+    if not telegram_user_id:
+        return
+    now = utcnow()
+    execute(
+        "INSERT INTO admin_subscribers(telegram_user_id, first_name, username, subscribed_at) "
+        "VALUES(?, ?, ?, ?) "
+        "ON CONFLICT(telegram_user_id) DO UPDATE SET "
+        "first_name=excluded.first_name, username=excluded.username",
+        (telegram_user_id, first_name or "", username or "", now),
+    )
+
+
+def get_all_admin_subscribers() -> list[dict]:
+    return query("SELECT * FROM admin_subscribers ORDER BY subscribed_at DESC")
+
+
 def is_telegram_admin(telegram_user_id: int, env_admin_ids: list[int] | None = None) -> bool:
     if env_admin_ids and telegram_user_id in env_admin_ids:
         return True
@@ -868,13 +901,23 @@ def is_telegram_admin(telegram_user_id: int, env_admin_ids: list[int] | None = N
         "SELECT 1 FROM admin_users WHERE telegram_user_id=? AND status='active'",
         (telegram_user_id,),
     )
-    return row is not None
+    if row is not None:
+        return True
+    sub = query_one(
+        "SELECT 1 FROM admin_subscribers WHERE telegram_user_id=?",
+        (telegram_user_id,),
+    )
+    return sub is not None
 
 
 def get_all_admin_telegram_ids(env_admin_ids: list[int] | None = None) -> list[int]:
     ids = set(env_admin_ids or [])
     rows = query("SELECT telegram_user_id FROM admin_users WHERE telegram_user_id IS NOT NULL AND status='active'")
     for r in rows:
+        if r["telegram_user_id"]:
+            ids.add(int(r["telegram_user_id"]))
+    sub_rows = query("SELECT telegram_user_id FROM admin_subscribers WHERE telegram_user_id IS NOT NULL")
+    for r in sub_rows:
         if r["telegram_user_id"]:
             ids.add(int(r["telegram_user_id"]))
     return list(ids)

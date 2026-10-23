@@ -74,6 +74,8 @@ def missing_vars() -> list[str]:
 
 
 def is_configured() -> bool:
+    if os.environ.get("GOOGLE_SHEET_WEBHOOK_URL", "").strip():
+        return True
     return not missing_vars()
 
 
@@ -216,12 +218,24 @@ def _registration_row(reg_id: str) -> list | None:
 
 def upsert_registration(reg_id: str) -> None:
     """Insert or update the spreadsheet row for a registration (idempotent)."""
-    cfg = config()
-    ensure_worksheet()
-
+    webhook_url = os.environ.get("GOOGLE_SHEET_WEBHOOK_URL", "").strip()
     row = _registration_row(reg_id)
     if row is None:
         return  # registration deleted; nothing to sync
+
+    if webhook_url:
+        payload = dict(zip(SHEET_COLUMNS, row))
+        try:
+            import httpx
+            resp = httpx.post(webhook_url, json=payload, follow_redirects=True, timeout=REQUEST_TIMEOUT)
+            if resp.status_code in (200, 201, 302):
+                return
+            raise RuntimeError(f"Webhook returned HTTP {resp.status_code}: {resp.text[:200]}")
+        except Exception as ex:
+            raise RuntimeError(f"Webhook sync error: {ex}") from ex
+
+    cfg = config()
+    ensure_worksheet()
 
     # Locate an existing row by its unique Registration ID (column A).
     listing = _api("GET",
@@ -259,6 +273,9 @@ def enqueue_registration(reg_id: str) -> None:
         "                  WHERE reg_id=? AND status IN ('pending','failed'))",
         (reg_id, now, now, now, reg_id),
     )
+    # Immediately dispatch sync in background thread so sheet updates in real time
+    if is_configured():
+        threading.Thread(target=process_pending, kwargs={"limit": 10}, daemon=True).start()
 
 
 def _next_delay(attempts: int) -> timedelta:

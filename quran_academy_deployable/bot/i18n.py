@@ -148,6 +148,12 @@ STRINGS = {
         "om": "🛡️ Admin Boti Bani (@xmzgebaadminbot)",
         "ar": "🛡️ فتح بوت الإدارة (@xmzgebaadminbot)",
     },
+    "btn_sheet": {
+        "en": "📊 Demo: Live Google Sheet",
+        "am": "📊 የቀጥታ Google Sheet ይመልከቱ",
+        "om": "📊 Google Sheet Kallattii Ilaalaa",
+        "ar": "📊 عرض جدول جوجل المباشر",
+    },
 
     # -----------------------------------------------------------------------
     # Common Navigation

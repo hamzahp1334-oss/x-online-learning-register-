@@ -140,7 +140,8 @@ def api_stats(admin):
 
     stats = {
         "total": count("SELECT COUNT(*) c FROM registrations WHERE archived_at IS NULL"),
-        "new": count("SELECT COUNT(*) c FROM registrations WHERE status='new' AND archived_at IS NULL"),
+        "new": count("SELECT COUNT(*) c FROM registrations WHERE status IN ('new', 'pending_verification') AND archived_at IS NULL"),
+        "pending_verification": count("SELECT COUNT(*) c FROM registrations WHERE status='pending_verification' AND archived_at IS NULL"),
         "awaiting_contact": count("SELECT COUNT(*) c FROM registrations WHERE status='contacted' AND archived_at IS NULL"),
         "confirmed": count("SELECT COUNT(*) c FROM registrations WHERE status='confirmed' AND archived_at IS NULL"),
         "active": count("SELECT COUNT(*) c FROM registrations WHERE status='active' AND archived_at IS NULL"),
@@ -165,9 +166,11 @@ def api_stats(admin):
     stats["trend"] = trend
 
     recent = db.query(
-        "SELECT r.reg_id, r.created_at, r.status, r.program_name_snapshot, "
+        "SELECT r.reg_id, r.created_at, r.status, "
+        "COALESCE(p.name, r.program_name_snapshot) AS program_name_snapshot, "
         "s.full_name, s.country FROM registrations r "
         "JOIN students s ON s.id=r.student_id "
+        "LEFT JOIN programs p ON p.id=r.program_id "
         "WHERE r.archived_at IS NULL ORDER BY r.created_at DESC LIMIT 8")
     stats["recent"] = recent
     stats["admin"] = admin
@@ -178,7 +181,7 @@ def api_stats(admin):
 
 REG_LIST_SQL = (
     "FROM registrations r JOIN students s ON s.id = r.student_id "
-    "JOIN programs p ON p.id = r.program_id ")
+    "LEFT JOIN programs p ON p.id = r.program_id ")
 
 
 def _reg_filters(args) -> tuple[str, list]:
@@ -247,8 +250,10 @@ def api_registrations(admin):
 def api_registration_detail(admin, reg_id):
     reg = db.query_one(
         "SELECT r.*, s.full_name, s.age, s.country, s.city, s.phone, s.whatsapp, "
-        "s.email, s.gender, s.parent_name, s.parent_phone "
-        "FROM registrations r JOIN students s ON s.id=r.student_id WHERE r.reg_id=?",
+        "s.email, s.gender, s.parent_name, s.parent_phone, "
+        "COALESCE(p.name, r.program_name_snapshot) AS program_name, p.slug AS program_slug "
+        "FROM registrations r JOIN students s ON s.id=r.student_id "
+        "LEFT JOIN programs p ON p.id=r.program_id WHERE r.reg_id=?",
         (reg_id,))
     if reg is None:
         return _bad("Registration not found.", 404)

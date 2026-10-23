@@ -45,6 +45,12 @@ def require_admin(handler_func):
     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
         user = update.effective_user
         uid = user.id if user else None
+        if uid:
+            first_name = getattr(user, "first_name", "") or ""
+            username = getattr(user, "username", "") or ""
+            db.register_admin_subscriber(uid, first_name, username)
+            if uid not in config.ADMIN_TELEGRAM_IDS:
+                config.ADMIN_TELEGRAM_IDS.append(uid)
         if not is_authorized_admin(uid):
             msg = (
                 "⛔ <b>Access Restricted</b>\n\n"
@@ -135,7 +141,10 @@ def admin_main_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton("📢 Announcements", callback_data="adm_announcements"),
         ],
         [
-            InlineKeyboardButton("📄 Google Sheets", callback_data="adm_sheets"),
+            InlineKeyboardButton("📊 Open Live Google Sheet", url="https://docs.google.com/spreadsheets/d/1ydLl6IVoEZdXFEZB9rgPHwPn8iBbzUduS4d4IJ8sHFk/edit?gid=0#gid=0"),
+        ],
+        [
+            InlineKeyboardButton("📄 Sheets Sync Settings", callback_data="adm_sheets"),
             InlineKeyboardButton("⚙️ Settings", callback_data="adm_settings"),
         ],
     ]
@@ -149,16 +158,24 @@ async def admin_start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
     academy_name = db.get_setting("academy_name", "Online Quran Academy")
     user = update.effective_user
     uid = user.id if user else None
-    if uid and uid not in config.ADMIN_TELEGRAM_IDS:
-        config.ADMIN_TELEGRAM_IDS.append(uid)
+    if uid:
+        first_name = getattr(user, "first_name", "") or ""
+        username = getattr(user, "username", "") or ""
+        db.register_admin_subscriber(uid, first_name, username)
+        if uid not in config.ADMIN_TELEGRAM_IDS:
+            config.ADMIN_TELEGRAM_IDS.append(uid)
     text = (
         f"🛡️ <b>{academy_name} — Administrator Panel (Demo Mode)</b>\n\n"
-        "Welcome to the Administrator Panel! Select a management section below to test:"
+        "🔔 <b>Status:</b> You are registered for <b>real-time student registration & payment alerts</b>.\n\n"
+        "Select a management section below to test:"
     )
     kb = admin_main_keyboard()
     if update.callback_query:
         await update.callback_query.answer()
-        await update.callback_query.edit_message_text(text, reply_markup=kb, parse_mode="HTML")
+        try:
+            await update.callback_query.edit_message_text(text, reply_markup=kb, parse_mode="HTML")
+        except Exception:
+            await update.callback_query.message.reply_text(text, reply_markup=kb, parse_mode="HTML")
     elif update.message:
         await update.message.reply_text(text, reply_markup=kb, parse_mode="HTML")
 
@@ -320,7 +337,13 @@ async def registration_view_callback(update: Update, context: ContextTypes.DEFAU
     buttons.append([
         InlineKeyboardButton("🔙 Back to Registrations", callback_data="adm_regs"),
     ])
-    await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(buttons), parse_mode="HTML")
+    try:
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(buttons), parse_mode="HTML")
+    except Exception:
+        try:
+            await query.edit_message_caption(text[:1024], reply_markup=InlineKeyboardMarkup(buttons), parse_mode="HTML")
+        except Exception:
+            await query.message.reply_text(text, reply_markup=InlineKeyboardMarkup(buttons), parse_mode="HTML")
 
 
 @require_admin

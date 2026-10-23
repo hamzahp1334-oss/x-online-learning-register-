@@ -45,7 +45,11 @@
     <header class="admin-topbar">
       <button class="nav-toggle admin-menu-toggle" id="adminMenuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
       <h1 id="adminTitle">Overview</h1>
-      <a class="btn btn-ghost btn-sm" href="{{ url_for('public.home') }}" target="_blank" rel="noopener">View website ↗</a>
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+        <a class="btn btn-ghost btn-sm" href="https://docs.google.com/spreadsheets/d/1ydLl6IVoEZdXFEZB9rgPHwPn8iBbzUduS4d4IJ8sHFk/edit?gid=0#gid=0" target="_blank" rel="noopener">📊 Live Google Sheet ↗</a>
+        <a class="btn btn-ghost btn-sm" href="https://t.me/xmzgebaadminbot" target="_blank" rel="noopener">🛡️ Admin Bot ↗</a>
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('public.home') }}" target="_blank" rel="noopener">View website ↗</a>
+      </div>
     </header>
 
     <main class="admin-content">
@@ -75,6 +79,7 @@
             <input type="search" id="regSearch" placeholder="Search name, phone, ID, email…">
             <select id="regStatusFilter">
               <option value="">All statuses</option>
+              <option value="pending_verification">Pending Verification</option>
               <option value="new">New</option>
               <option value="contacted">Contacted</option>
               <option value="confirmed">Confirmed</option>
