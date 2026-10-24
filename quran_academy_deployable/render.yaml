@@ -21,6 +21,12 @@ services:
         sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false
+      - key: ADMIN_TELEGRAM_IDS
+        value: "6666443909,8053250308"
+      - key: GOOGLE_SHEET_ID
+        value: "1ydLl6IVoEZdXFEZB9rgPHwPn8iBbzUduS4d4IJ8sHFk"
+      - key: GOOGLE_SHEET_WEBHOOK_URL
+        value: "https://script.google.com/macros/s/AKfycbxj4Ogdc0bAeXVTSNEzpeOHKifhNPFbzuBvzlQ_sC0h0uY1Hf2JSBojRDyEY9JQq7k_yg/exec"
       - key: ADMIN_EMAIL
         value: "admin@academy.test"
       - key: ADMIN_PASSWORD

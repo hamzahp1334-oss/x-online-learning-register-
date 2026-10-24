@@ -165,8 +165,10 @@ async def admin_start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         if uid not in config.ADMIN_TELEGRAM_IDS:
             config.ADMIN_TELEGRAM_IDS.append(uid)
     text = (
-        f"🛡️ <b>{academy_name} — Administrator Panel (Demo Mode)</b>\n\n"
-        "🔔 <b>Status:</b> You are registered for <b>real-time student registration & payment alerts</b>.\n\n"
+        f"🛡️ <b>{academy_name} — Administrator Panel (Open Demo Mode)</b>\n\n"
+        "✅ <b>You are subscribed!</b>\n"
+        "Whenever any student registers on the Student Bot (@xmzgebabot) or website, you will receive "
+        "<b>real-time alert notifications with receipt photos & approval buttons</b> directly in this chat.\n\n"
         "Select a management section below to test:"
     )
     kb = admin_main_keyboard()

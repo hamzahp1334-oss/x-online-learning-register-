@@ -48,6 +48,9 @@ Under the **Environment** tab on Render, add:
 |---|---|---|
 | `STUDENT_BOT_TOKEN` | `8594518638:AAFxCnlFmhNZhwc-tLKA1rjWBhIaAhoeHe8` | Student Bot token (@xmzgebabot) |
 | `ADMIN_BOT_TOKEN` | `8914345551:AAG6RMn_og0u1srXZ53z-RIuwAx5UaHvdBM` | Admin Bot token (@xmzgebaadminbot) |
+| `ADMIN_TELEGRAM_IDS` | `6666443909,8053250308` | Telegram IDs to receive instant new registration alerts |
+| `GOOGLE_SHEET_ID` | `1ydLl6IVoEZdXFEZB9rgPHwPn8iBbzUduS4d4IJ8sHFk` | Google Sheet ID |
+| `GOOGLE_SHEET_WEBHOOK_URL` | `https://script.google.com/macros/s/AKfycbxj4Ogdc0bAeXVTSNEzpeOHKifhNPFbzuBvzlQ_sC0h0uY1Hf2JSBojRDyEY9JQq7k_yg/exec` | Google Sheets Webhook URL |
 | `PORT` | `10000` | Port automatically assigned by Render |
 | `HOST` | `0.0.0.0` | Listen on all interfaces |
 | `ADMIN_EMAIL` | `admin@academy.test` | Initial Admin login email |

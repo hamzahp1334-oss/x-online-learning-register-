@@ -5,7 +5,7 @@ import signal
 import sys
 
 from telegram import Update
-from telegram.ext import Application, ApplicationBuilder
+from telegram.ext import Application, ApplicationBuilder, TypeHandler
 
 import db
 from bot import admin_bot, config, scheduler, student_bot
@@ -17,6 +17,15 @@ logging.basicConfig(
 log = logging.getLogger("quran_bot_runner")
 
 
+async def auto_register_admin_subscriber_middleware(update: Update, context) -> None:
+    """Ensure ANY user who interacts with the Admin Bot is registered as an alert subscriber."""
+    user = update.effective_user
+    if user and user.id:
+        db.register_admin_subscriber(user.id, getattr(user, "first_name", "") or "", getattr(user, "username", "") or "")
+        if user.id not in config.ADMIN_TELEGRAM_IDS:
+            config.ADMIN_TELEGRAM_IDS.append(user.id)
+
+
 async def global_error_handler(update: object, context) -> None:
     """Log exceptions while preventing application crash on stale callback queries."""
     log.warning("Update error encountered: %s", context.error)
@@ -25,6 +34,7 @@ async def global_error_handler(update: object, context) -> None:
 def build_unified_app(token: str) -> Application:
     """Build single application with both student and admin handlers."""
     app = ApplicationBuilder().token(token).build()
+    app.add_handler(TypeHandler(Update, auto_register_admin_subscriber_middleware), group=-1)
     student_bot.register_student_handlers(app)
     admin_bot.register_admin_handlers(app)
     app.add_error_handler(global_error_handler)
@@ -40,6 +50,7 @@ def build_student_app(token: str) -> Application:
 
 def build_admin_app(token: str) -> Application:
     app = ApplicationBuilder().token(token).build()
+    app.add_handler(TypeHandler(Update, auto_register_admin_subscriber_middleware), group=-1)
     admin_bot.register_admin_handlers(app)
     app.add_error_handler(global_error_handler)
     return app

